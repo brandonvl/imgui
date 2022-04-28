@@ -22,7 +22,7 @@
 
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
-//  2021-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
+//  2022-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
 //  2021-06-29: Reorganized backend to pull data from a single structure to facilitate usage with multiple-contexts (all g_XXXX access changed to bd->XXXX).
 //  2021-05-19: DirectX12: Replaced direct access to ImDrawCmd::TextureId with a call to ImDrawCmd::GetTexID(). (will become a requirement)
 //  2021-02-18: DirectX12: Change blending equation to preserve alpha in output buffer.
@@ -64,7 +64,7 @@ struct ImGui_ImplDX12_Data
     ID3D12DescriptorHeap*       pd3dSrvDescHeap;
     UINT                        numFramesInFlight;
 
-    ImGui_ImplDX12_Data()       { memset(this, 0, sizeof(*this)); }
+    ImGui_ImplDX12_Data()       { memset((void*)this, 0, sizeof(*this)); }
 };
 
 // Backend data stored in io.BackendRendererUserData to allow support for multiple Dear ImGui contexts
@@ -544,6 +544,7 @@ bool    ImGui_ImplDX12_CreateDeviceObjects()
         param[1].DescriptorTable.pDescriptorRanges = &descRange;
         param[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+        // Bilinear sampling is required by default. Set 'io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines' or 'style.AntiAliasedLinesUseTex = false' to allow point/nearest sampling.
         D3D12_STATIC_SAMPLER_DESC staticSampler = {};
         staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
         staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
